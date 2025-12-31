@@ -1343,4 +1343,37 @@ class DatabasePostgresSchemaGrammarTest extends TestCase
 
         $this->assertTrue($c);
     }
+
+    public function testDropColumnIfExists()
+    {
+        $blueprint = new Blueprint($this->getConnection(), 'users');
+        $blueprint->dropColumnIfExists('foo');
+        $statements = $blueprint->toSql();
+
+        $this->assertCount(1, $statements);
+        $this->assertSame(
+            'alter table "users" drop column if exists "foo"',
+            $statements[0]
+        );
+
+        $blueprint = new Blueprint($this->getConnection(), 'users');
+        $blueprint->dropColumnIfExists(['foo', 'bar']);
+        $statements = $blueprint->toSql();
+
+        $this->assertCount(1, $statements);
+        $this->assertSame(
+            'alter table "users" drop column if exists "foo", drop column if exists "bar"',
+            $statements[0]
+        );
+
+        $blueprint = new Blueprint($this->getConnection(), 'users');
+        $blueprint->dropColumnIfExists('foo', 'bar');
+        $statements = $blueprint->toSql();
+
+        $this->assertCount(1, $statements);
+        $this->assertSame(
+            'alter table "users" drop column if exists "foo", drop column if exists "bar"',
+            $statements[0]
+        );
+    }
 }
